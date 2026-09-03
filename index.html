@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iceland — Jack's 30th Birthday Adventure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Lato:wght@300;400;700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+:root{
+  --ice:#2A7FA8;--ice2:#4AADCA;--ice3:#A8D8EA;
+  --aurora:#2A8A5A;--aurora2:#4AAA7A;
+  --lava:#2A2A2A;--lava2:#444;
+  --snow:#F4F8FA;--frost:#E8F4F8;--white:#FFFFFF;
+  --ink:#1A1C1E;--slate:#5A6A74;--mid:#3A4A54;
+  --border:rgba(42,127,168,0.18);--shadow:rgba(10,20,40,0.08);
+  --gold:#C59B27;--gold2:#D4A830;
+}
+body{font-family:'Lato',sans-serif;background:var(--snow);color:var(--ink);overflow-x:hidden}
+
+/* LOADER */
+#loader{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity 0.8s,visibility 0.8s}
+#loader.done{opacity:0;visibility:hidden;pointer-events:none}
+.loader-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-style:italic;color:var(--ice2);text-align:center}
+.loader-sub{font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase;color:rgba(74,173,202,0.6)}
+.loader-bar{width:180px;height:1px;background:rgba(42,127,168,0.2);overflow:hidden;position:relative}
+.loader-bar::after{content:'';position:absolute;left:-100%;top:0;width:100%;height:100%;background:linear-gradient(90deg,transparent,var(--ice2),transparent);animation:bar 1.8s ease-in-out infinite}
+@keyframes bar{to{left:200%}}
+
+/* NAV DOTS */
+#nav-ring{position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:200;display:flex;flex-direction:column;gap:10px}
+.nav-pip{width:9px;height:9px;border-radius:50%;border:1px solid rgba(42,127,168,0.4);background:rgba(42,127,168,0.1);cursor:pointer;transition:all 0.3s;text-decoration:none;display:block;position:relative}
+.nav-pip::after{content:attr(data-label);position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;white-space:nowrap;color:var(--ice);opacity:0;transition:opacity 0.2s;pointer-events:none;background:var(--white);padding:2px 8px;border-radius:4px;box-shadow:0 2px 8px var(--shadow)}
+.nav-pip:hover::after,.nav-pip.active::after{opacity:1}
+.nav-pip.active,.nav-pip:hover{background:var(--ice);border-color:var(--ice);transform:scale(1.5)}
+@media(max-width:700px){#nav-ring{display:none}}
+
+/* TIMELINE */
+#timeline{position:fixed;left:20px;top:10%;height:80%;z-index:100;display:flex;flex-direction:column;align-items:center}
+.tl-line{flex:1;width:1px;background:linear-gradient(to bottom,transparent,rgba(42,127,168,0.15),transparent);position:relative;overflow:hidden}
+.tl-fill{position:absolute;top:0;left:0;right:0;height:0%;background:linear-gradient(to bottom,var(--ice),var(--aurora));transition:height 0.3s}
+.tl-dot{width:6px;height:6px;border-radius:50%;border:1px solid rgba(42,127,168,0.3);background:transparent;margin:3px 0;flex-shrink:0;transition:all 0.4s}
+.tl-dot.lit{background:var(--ice);border-color:var(--ice);box-shadow:0 0 6px rgba(42,127,168,0.4)}
+@media(max-width:700px){#timeline{display:none}}
+
+/* HERO */
+#s-hero{position:relative;height:100vh;min-height:600px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--ink)}
+#hero-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.hero-content{position:relative;z-index:5;text-align:center;padding:0 24px}
+.hero-eyebrow{font-size:0.65rem;letter-spacing:0.5em;text-transform:uppercase;color:rgba(168,216,234,0.7);margin-bottom:16px;animation:fadeUp 1s 1.2s both}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,10vw,7rem);font-weight:900;line-height:0.88;color:#fff;text-shadow:0 0 80px rgba(42,127,168,0.5);animation:fadeUp 1s 1.5s both}
+.hero-title em{font-style:italic;color:var(--ice2)}
+.hero-birthday{font-family:'Playfair Display',serif;font-size:clamp(1rem,3vw,1.6rem);font-style:italic;color:var(--gold2);margin-top:12px;animation:fadeUp 1s 1.8s both}
+.hero-sub{font-size:clamp(0.85rem,2vw,1rem);color:rgba(168,216,234,0.7);margin-top:14px;letter-spacing:0.05em;animation:fadeUp 1s 2.1s both}
+.hero-names{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px;animation:fadeUp 1s 2.4s both}
+.hero-name{font-size:0.7rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(248,252,255,0.75);padding:5px 14px;border:1px solid rgba(74,173,202,0.4);border-radius:20px}
+.hero-name.birthday{border-color:var(--gold);color:var(--gold2)}
+.hero-date{font-family:'Playfair Display',serif;font-style:italic;font-size:0.95rem;color:#fff;margin-top:14px;animation:fadeUp 1s 2.7s both;text-shadow:0 1px 12px rgba(0,0,0,0.5)}
+.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;z-index:5;animation:fadeIn 1s 3s both;text-decoration:none}
+.scroll-hint-pill{font-size:0.7rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#fff;background:rgba(42,127,168,0.25);border:1.5px solid rgba(74,173,202,0.6);border-radius:24px;padding:10px 24px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.scroll-line{width:1px;height:28px;background:linear-gradient(var(--ice2),transparent);animation:pulse-v 2s infinite}
+@keyframes pulse-v{0%,100%{opacity:0.4}50%{opacity:1}}
+
+/* SECTIONS */
+section{position:relative;overflow:hidden}
+.section-inner{max-width:860px;margin:0 auto;padding:52px 24px}
+.day-stripe{height:3px;background:linear-gradient(90deg,var(--ice),var(--aurora),transparent)}
+.day-stripe.birthday{background:linear-gradient(90deg,var(--gold),var(--ice2),var(--gold),transparent)}
+.section-day{font-size:0.6rem;letter-spacing:0.45em;text-transform:uppercase;color:var(--slate);margin-bottom:10px;display:block}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,3rem);font-weight:700;line-height:1.15;margin-bottom:20px;color:var(--ice)}
+.section-title.aurora{color:var(--aurora)}
+.section-title.birthday-title{color:var(--gold)}
+.section-title.dark{color:var(--lava)}
+.section-intro{font-family:'Playfair Display',serif;font-style:italic;font-size:1rem;line-height:1.8;color:var(--slate);margin-bottom:36px;border-left:3px solid var(--ice2);padding-left:18px}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:0 2px 12px var(--shadow);transition:transform 0.25s,box-shadow 0.25s,border-color 0.25s}
+.card:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(42,127,168,0.12);border-color:rgba(42,127,168,0.4)}
+.card-icon{font-size:1.8rem;margin-bottom:10px;display:block}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--ice);margin-bottom:8px}
+.card-title a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(42,127,168,0.25)}
+.card-title a:hover{border-color:var(--ice)}
+.card-body{font-size:0.875rem;line-height:1.72;color:var(--mid)}
+.card-body strong{color:var(--ink)}
+.card-body em{color:var(--aurora);font-style:italic}
+.card-body a{color:var(--ice);text-decoration:none;border-bottom:1px solid rgba(42,127,168,0.25)}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tag{font-size:0.58rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.tag-ice{background:rgba(42,127,168,0.09);color:var(--ice);border:1px solid rgba(42,127,168,0.25)}
+.tag-aurora{background:rgba(42,138,90,0.09);color:var(--aurora);border:1px solid rgba(42,138,90,0.25)}
+.tag-lava{background:rgba(60,60,60,0.09);color:var(--lava2);border:1px solid rgba(60,60,60,0.22)}
+.tag-gold{background:rgba(197,155,39,0.1);color:var(--gold);border:1px solid rgba(197,155,39,0.28)}
+.tag-red{background:rgba(180,40,40,0.08);color:#8D2020;border:1px solid rgba(180,40,40,0.2)}
+
+.opt-badge{display:inline-block;font-size:0.58rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:10px}
+.opt-a{background:rgba(42,127,168,0.1);color:var(--ice);border:1px solid rgba(42,127,168,0.3)}
+.opt-b{background:rgba(42,138,90,0.1);color:var(--aurora);border:1px solid rgba(42,138,90,0.28)}
+
+.or-div{display:flex;align-items:center;gap:10px;color:rgba(42,127,168,0.45);font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;margin:4px 0;grid-column:1/-1}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:rgba(42,127,168,0.15)}
+
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+
+/* TIME BLOCKS */
+.time-block{display:flex;gap:18px;margin-bottom:32px;align-items:flex-start}
+.t-tag{flex-shrink:0;min-width:76px;font-size:0.58rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--ice);border-top:2px solid var(--ice);padding-top:6px}
+.t-tag.aurora{color:var(--aurora);border-top-color:var(--aurora)}
+.t-tag.gold{color:var(--gold);border-top-color:var(--gold)}
+.t-body{flex:1}
+.t-body p{font-size:0.9rem;line-height:1.75;color:var(--mid);margin-bottom:10px}
+.t-body p:last-child{margin-bottom:0}
+.t-body strong{color:var(--ink)}
+.t-body em{color:var(--aurora);font-style:italic}
+.t-body a{color:var(--ice);text-decoration:none;border-bottom:1px solid rgba(42,127,168,0.25)}
+
+/* TIP BOX */
+.tip-box{background:rgba(42,127,168,0.07);border-left:4px solid var(--ice2);border-radius:0 12px 12px 0;padding:18px 22px;margin-bottom:20px}
+.tip-label{font-size:0.58rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--ice);margin-bottom:8px}
+.tip-body{font-size:0.875rem;line-height:1.7;color:var(--mid)}
+
+/* BIRTHDAY BANNER */
+.birthday-banner{background:linear-gradient(135deg,rgba(197,155,39,0.12),rgba(42,127,168,0.12));border:2px solid rgba(197,155,39,0.4);border-radius:16px;padding:28px;text-align:center;margin-bottom:32px;position:relative;overflow:hidden}
+.birthday-banner::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(197,155,39,0.03) 20px,rgba(197,155,39,0.03) 21px)}
+.birthday-title-inner{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--gold);margin-bottom:6px}
+.birthday-subtitle{font-family:'Playfair Display',serif;font-style:italic;font-size:1rem;color:var(--slate)}
+
+/* COSTS TABLE */
+.costs-table{width:100%;border-collapse:collapse;margin-top:20px;font-size:0.875rem}
+.costs-table th{background:var(--ice);color:#fff;padding:10px 14px;text-align:left;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase}
+.costs-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.08);color:rgba(200,225,240,0.85)}
+.costs-table tr:last-child td{font-weight:700;color:#fff;background:rgba(42,127,168,0.12);border-bottom:none}
+.costs-table td:first-child{color:rgba(230,245,255,0.95);font-weight:600}
+.costs-table td:nth-child(2){color:#7DD8F0}
+.costs-table td:nth-child(3){color:#7ACCA0}
+
+/* BOOKING LINKS */
+.book-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--ice);text-decoration:none;border:1px solid rgba(42,127,168,0.3);padding:5px 12px;border-radius:20px;transition:all 0.2s}
+.book-link:hover{background:var(--ice);color:#fff;border-color:var(--ice)}
+
+/* SECTION BACKGROUNDS */
+#s-flight{background:var(--frost)}
+#s-day1{background:var(--snow)}
+#s-day2{background:var(--frost)}
+#s-day3{background:linear-gradient(160deg,#0E1A24 0%,#12202E 100%)}
+#s-day4{background:var(--snow)}
+#s-day5{background:var(--frost)}
+#s-day6{background:var(--snow)}
+#s-day7{background:var(--frost)}
+#s-costs{background:linear-gradient(160deg,#0E1A24,#12202E)}
+
+/* SPLIT ACTIVITY (Day 4 glacier) */
+.split-card{border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px var(--shadow)}
+.split-header{display:flex}
+.split-half{flex:1;padding:20px;position:relative}
+.split-half.young{background:linear-gradient(135deg,rgba(42,127,168,0.12),rgba(42,127,168,0.04))}
+.split-half.parents{background:linear-gradient(135deg,rgba(42,138,90,0.1),rgba(42,138,90,0.04))}
+.split-divider{width:1px;background:var(--border);flex-shrink:0}
+.split-who{font-size:0.62rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px}
+.split-who.young{color:var(--ice)}
+.split-who.parents{color:var(--aurora)}
+.split-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;margin-bottom:8px}
+.split-body{font-size:0.82rem;line-height:1.65;color:var(--mid)}
+
+/* FOOTER */
+footer{background:var(--ink);color:rgba(200,220,240,0.4);text-align:center;padding:44px 20px;border-top:2px solid rgba(42,127,168,0.2);font-size:0.7rem;letter-spacing:0.15em}
+footer .hl{color:var(--ice2)}
+footer .gold{color:var(--gold)}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity 0.65s ease,transform 0.65s ease}
+.reveal.v{opacity:1;transform:translateY(0)}
+
+/* MOBILE */
+@media(max-width:700px){
+  .section-inner{padding:38px 16px}
+  .g2,.g3{grid-template-columns:1fr}
+  .split-header{flex-direction:column}
+  .split-divider{width:100%;height:1px}
+  .time-block{flex-direction:column;gap:4px}
+  .t-tag{min-width:auto;border-top:none;border-left:2px solid var(--ice);padding:0 0 0 10px}
+  .t-tag.aurora{border-left-color:var(--aurora)}
+  .t-tag.gold{border-left-color:var(--gold)}
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes aurora-drift{0%,100%{transform:translateX(0) scaleY(1)}33%{transform:translateX(30px) scaleY(1.1)}66%{transform:translateX(-20px) scaleY(0.95)}}
+@keyframes snowfall{0%{transform:translateY(-20px) rotate(0deg);opacity:0.8}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <svg width="60" height="60" viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="27" stroke="rgba(42,127,168,0.2)" stroke-width="1" fill="none"/>
+    <path d="M 30 6 L 30 20 M 30 40 L 30 54 M 6 30 L 20 30 M 40 30 L 54 30" stroke="rgba(74,173,202,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+    <polygon points="30,10 33,24 30,20 27,24" fill="var(--ice2)" style="animation:spin 3s linear infinite;transform-origin:30px 30px"/>
+    <circle cx="30" cy="30" r="4" fill="var(--ice2)"/>
+  </svg>
+  <div class="loader-title">Preparing Jack&rsquo;s<br>Icelandic adventure&hellip;</div>
+  <div class="loader-bar"></div>
+  <div class="loader-sub">Iceland &middot; June 2027</div>
+</div>
+
+<div id="timeline">
+  <div class="tl-dot" id="tl0"></div>
+  <div class="tl-line"><div class="tl-fill" id="tl-fill"></div></div>
+  <div class="tl-dot" id="tl1"></div>
+  <div class="tl-line"><div class="tl-fill" style="height:100%"></div></div>
+  <div class="tl-dot" id="tl2"></div>
+  <div class="tl-line"><div class="tl-fill" style="height:100%"></div></div>
+  <div class="tl-dot" id="tl3"></div>
+  <div class="tl-line"><div class="tl-fill" style="height:100%"></div></div>
+  <div class="tl-dot" id="tl4"></div>
+  <div class="tl-line"><div class="tl-fill" style="height:100%"></div></div>
+  <div class="tl-dot" id="tl5"></div>
+  <div class="tl-line"><div class="tl-fill" style="height:100%"></div></div>
+  <div class="tl-dot" id="tl6"></div>
+  <div class="tl-line"><div class="tl-fill" style="height:100%"></div></div>
+  <div class="tl-dot" id="tl7"></div>
+</div>
+
+<nav id="nav-ring">
+  <a href="#s-hero"   class="nav-pip active" data-label="Top"></a>
+  <a href="#s-day1"   class="nav-pip" data-label="Day 1 &middot; Blue Lagoon"></a>
+  <a href="#s-day2"   class="nav-pip" data-label="Day 2 &middot; Golden Circle"></a>
+  <a href="#s-day3"   class="nav-pip" data-label="Day 3 &middot; The Birthday"></a>
+  <a href="#s-day4"   class="nav-pip" data-label="Day 4 &middot; Glaciers"></a>
+  <a href="#s-day5"   class="nav-pip" data-label="Day 5 &middot; Puffins"></a>
+  <a href="#s-day6"   class="nav-pip" data-label="Day 6 &middot; Whales"></a>
+  <a href="#s-day7"   class="nav-pip" data-label="Day 7 &middot; Departure"></a>
+</nav>
+
+<!-- HERO -->
+<section id="s-hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <p class="hero-eyebrow">A 6-Day Iceland Adventure</p>
+    <h1 class="hero-title">Iceland<br><em>June 2027</em></h1>
+    <p class="hero-birthday">&#127881; Jack&rsquo;s 30th Birthday &#127881;</p>
+    <p class="hero-sub">Midnight sun &middot; Glaciers &middot; Geothermal wonders &middot; Puffins &amp; whales</p>
+    <div class="hero-names">
+      <span class="hero-name birthday">Jack &#127881;</span>
+      <span class="hero-name">Julian</span>
+      <span class="hero-name">Lianne</span>
+      <span class="hero-name">Daisy</span>
+    </div>
+    <p class="hero-date">Sunday 21st &mdash; Saturday 27th June 2027</p>
+  </div>
+  <a href="#s-day1" class="scroll-hint">
+    <span class="scroll-hint-pill">Begin the adventure &#8595;</span>
+    <div class="scroll-line"></div>
+  </a>
+</section>
+
+<!-- FLIGHT / LOGISTICS -->
+<section id="s-flight">
+  <div class="day-stripe"></div>
+  <div class="section-inner">
+    <span class="section-day reveal">Getting There</span>
+    <h2 class="section-title reveal">Fly to Keflavík</h2>
+    <p class="section-intro reveal">Direct flights to Keflavík International Airport (KEF). Collect your 4WD SUV on arrival &mdash; a 4WD SUV is recommended for the rugged South Coast roads. From the airport the adventure begins immediately.</p>
+    <div class="grid g2 reveal">
+      <div class="card">
+        <span class="card-icon">&#9992;</span>
+        <div class="card-title">Keflavík Airport (KEF)</div>
+        <div class="card-body">Direct flights from London. Journey time approx. 3 hours. Keflavík is 50km from Reykjavík and 20 minutes from the Blue Lagoon &mdash; perfect for heading straight there on arrival.</div>
+        <div class="card-tags"><span class="tag tag-ice">DIRECT FLIGHT</span></div>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#128663;</span>
+        <div class="card-title">4WD SUV Rental</div>
+        <div class="card-body">Pick up your vehicle at KEF. A capable 4WD SUV is essential for the South Coast &mdash; F-roads require high clearance. Book in advance for June, as demand is high.</div>
+        <div class="card-tags"><span class="tag tag-ice">PICK UP AT KEF</span><span class="tag tag-lava">4WD REQUIRED</span></div>
+      </div>
+    </div>
+    <div class="tip-box reveal" style="margin-top:20px">
+      <div class="tip-label">&#127775; June in Iceland &mdash; Midnight Sun</div>
+      <div class="tip-body">In late June you&rsquo;ll have <strong>nearly 24 hours of daylight</strong>. The sun barely sets, creating spectacular golden light at &ldquo;midnight&rdquo;. This lets you drive late, see waterfalls in extraordinary light, and explore without rushing. Pack an eye mask for sleeping.</div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY 1 -->
+<section id="s-day1">
+  <div class="day-stripe"></div>
+  <div class="section-inner">
+    <span class="section-day reveal">Day 1 &middot; Sunday 21 June</span>
+    <h2 class="section-title reveal">The Geothermal Reset</h2>
+    <p class="section-intro reveal">Land at KEF, collect your 4WD, and drive 20 minutes directly to the Blue Lagoon. The perfect way to shake off the flight and arrive in Iceland feeling completely renewed.</p>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Arrival<br>KEF</div>
+      <div class="t-body">
+        <p>Collect your 4WD SUV at the airport and drive directly south for 20 minutes. No hotel check-in, no faff &mdash; straight to the lagoon.</p>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Afternoon</div>
+      <div class="t-body">
+        <div class="card" style="border-left:3px solid var(--ice)">
+          <span class="card-icon">&#9832;</span>
+          <div class="card-title"><a href="https://www.bluelagoon.com/blue-lagoon-iceland/blue-lagoon" target="_blank" rel="noopener">Blue Lagoon &mdash; Retreat Spa</a></div>
+          <div class="card-body">Soak in the world-famous geothermal waters surrounded by black lava fields. The milky-blue silica-rich water sits at a perfect 38&ndash;40&deg;C. Book the <strong>Retreat</strong> experience for exclusive access away from the main crowds, with in-water bar service and silica mud masks.</div>
+          <div class="card-tags"><span class="tag tag-ice">GEOTHERMAL SPA</span><span class="tag tag-aurora">BOOK IN ADVANCE</span><span class="tag tag-lava">20 MINS FROM KEF</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Drive<br>~1h 45m</div>
+      <div class="t-body">
+        <p>After the lagoon, drive 125km east along the Ring Road to Hella. The landscape shifts from lunar lava fields to vivid green farmland.</p>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Stay</div>
+      <div class="t-body">
+        <div class="card">
+          <span class="card-icon">&#127968;</span>
+          <div class="card-title"><a href="https://landhotel.is/" target="_blank" rel="noopener">Landh&oacute;tel, Hella</a></div>
+          <div class="card-body">Smart, comfortable hotel in Hella with excellent facilities and a warm Icelandic welcome. A great South Coast base with everything you need after the first big day.</div>
+          <div class="card-tags"><span class="tag tag-aurora">4 STAR</span><span class="tag tag-ice">HELLA</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY 2 -->
+<section id="s-day2">
+  <div class="day-stripe"></div>
+  <div class="section-inner">
+    <span class="section-day reveal">Day 2 &middot; Monday 22 June</span>
+    <h2 class="section-title reveal">The Golden Circle</h2>
+    <p class="section-intro reveal">A 180km round trip from Hella taking in Iceland&rsquo;s three most iconic natural wonders. The geology here is staggering &mdash; tectonic plates, erupting geysers, and a thundering glacial waterfall.</p>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Morning</div>
+      <div class="t-body">
+        <div class="grid g2">
+          <div class="card">
+            <span class="card-icon">&#127759;</span>
+            <div class="card-title">&thorn;ingvellir National Park</div>
+            <div class="card-body">Walk the rift valley where the North American and Eurasian tectonic plates are visibly pulling apart. Iceland&rsquo;s most historically and geologically significant site. A UNESCO World Heritage Site.</div>
+            <div class="card-tags"><span class="tag tag-ice">UNESCO SITE</span><span class="tag tag-lava">TECTONIC PLATES</span></div>
+          </div>
+          <div class="card">
+            <span class="card-icon">&#128166;</span>
+            <div class="card-title">Strokkur Geysir</div>
+            <div class="card-body">The famous Strokkur geyser erupts every 5&ndash;10 minutes, sending a column of boiling water 20&ndash;40 metres into the sky. Unmissable, and spectacular to photograph in the June light.</div>
+            <div class="card-tags"><span class="tag tag-red">ERUPTS EVERY 10 MINS</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Midday</div>
+      <div class="t-body">
+        <div class="card">
+          <span class="card-icon">&#127754;</span>
+          <div class="card-title">Gullfoss Waterfall</div>
+          <div class="card-body">The &ldquo;Golden Falls&rdquo; &mdash; a massive two-tiered waterfall plunging into a dramatic canyon. In June the flow is at its peak from glacial melt. Walk to the viewing platforms and feel the mist.</div>
+          <div class="card-tags"><span class="tag tag-ice">GLACIAL WATERFALL</span><span class="tag tag-aurora">JUNE PEAK FLOW</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Evening</div>
+      <div class="t-body">
+        <p>Return to Hella for dinner. Hotel Rang&aacute; has a celebrated restaurant with Icelandic lamb and Arctic char &mdash; reserve a table for a relaxed evening ahead of tomorrow&rsquo;s big day.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY 3 — BIRTHDAY -->
+<section id="s-day3">
+  <div class="day-stripe birthday"></div>
+  <div class="section-inner">
+    <span class="section-day reveal" style="color:var(--gold)">Day 3 &middot; Wednesday 23 June 2027 &middot; THE BIRTHDAY</span>
+
+    <div class="birthday-banner reveal">
+      <div class="birthday-title-inner">&#127881; Jack turns 30 &#127881;</div>
+      <div class="birthday-subtitle">Celebrated on a glacier, under the midnight sun, in the most dramatic landscape on earth</div>
+    </div>
+
+    <h2 class="section-title birthday-title reveal">Snowmobiling on a Volcano</h2>
+    <p class="section-intro reveal">Drive 35 minutes to Br&uacute; Base Camp for snowmobiling on the Eyjafjallaj&ouml;kull volcano glacier &mdash; the very volcano whose 2010 eruption shut down European airspace. A Super Jeep takes you from base camp up to the snowline for a 1-hour snowmobile ride with 360&deg; views of the South Coast and the Westman Islands.</p>
+
+    <div class="time-block reveal">
+      <div class="t-tag gold">Morning<br>Birthday</div>
+      <div class="t-body">
+        <div class="card" style="border-left:3px solid var(--gold)">
+          <span class="card-icon">&#10052;</span>
+          <div class="card-title" style="color:var(--gold)"><a href="https://southadventure.is/" target="_blank" rel="noopener" style="color:var(--gold);border-color:rgba(197,155,39,0.3)">Snowmobiling on Eyjafjallaj&ouml;kull</a></div>
+          <div class="card-body"><strong>Meeting point:</strong> Br&uacute; Base Camp &mdash; approx. 35 minutes from Hella. A Super Jeep drives you up to the glacier summit, where you ride snowmobiles across vast white ice with the entire South Coast spread below you. In June the glacier is thick and the visibility extraordinary.</div>
+          <div class="card-tags"><span class="tag tag-gold">BIRTHDAY ADVENTURE</span><span class="tag tag-ice">35 MINS FROM HELLA</span><span class="tag tag-lava">1 HR SNOWMOBILE RIDE</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Afternoon</div>
+      <div class="t-body">
+        <div class="card">
+          <span class="card-icon">&#128167;</span>
+          <div class="card-title">Seljalandsfoss &mdash; Walk Behind the Falls</div>
+          <div class="card-body">A short drive from the glacier base. Seljalandsfoss is one of Iceland&rsquo;s most spectacular waterfalls &mdash; and uniquely, you can walk behind the curtain of water into the cave behind it. In the eternal June daylight the light through the falling water is extraordinary.</div>
+          <div class="card-tags"><span class="tag tag-ice">WALK BEHIND THE FALLS</span><span class="tag tag-aurora">MIDNIGHT SUN LIGHT</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag gold">Birthday<br>Dinner</div>
+      <div class="t-body">
+        <div class="card" style="border-left:3px solid var(--gold)">
+          <span class="card-icon">&#127869;</span>
+          <div class="card-title" style="color:var(--gold)"><a href="https://www.facebook.com/HafidBlaa/" target="_blank" rel="noopener" style="color:var(--gold);border-color:rgba(197,155,39,0.3)">Hafi&eth; Bl&aacute;a &mdash; The Blue Harbour</a></div>
+          <div class="card-body">Celebratory birthday feast at this beloved riverside and ocean-view restaurant near Selfoss. Famous for fresh Icelandic fish, lamb, and a warm atmosphere. Book well in advance for a window table.</div>
+          <div class="card-tags"><span class="tag tag-gold">BIRTHDAY FEAST</span><span class="tag tag-ice">RIVER &amp; OCEAN VIEWS</span><span class="tag tag-aurora">BOOK IN ADVANCE</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY 4 -->
+<section id="s-day4">
+  <div class="day-stripe"></div>
+  <div class="section-inner">
+    <span class="section-day reveal">Day 4 &middot; Thursday 24 June</span>
+    <h2 class="section-title reveal">Glaciers &amp; Black Sands</h2>
+    <p class="section-intro reveal">A spectacular day on the ice at S&oacute;lheimaj&ouml;kull glacier &mdash; with an activity split so Jack and Daisy can take on the technical climb while Julian and Lianne enjoy a more relaxed glacier walk on the same ice tongue.</p>
+
+    <div class="time-block reveal">
+      <div class="t-tag">11:00am<br>Glacier</div>
+      <div class="t-body">
+        <div class="split-card">
+          <div class="split-header">
+            <div class="split-half young">
+              <div class="split-who young">&#9889; Jack &amp; Daisy</div>
+              <div class="split-title" style="color:var(--ice)">Blue Ice Hike &amp; Climbing</div>
+              <div class="split-body"><strong>4.5 hours</strong> &mdash; Technical ice climb and high-glacier trek. Crampons, ice axes, the full kit. Scrambling up seracs and exploring deep blue crevasses. The full S&oacute;lheimaj&ouml;kull experience for the adventurous.</div>
+              <div class="card-tags" style="margin-top:10px"><span class="tag tag-ice">4.5 HRS</span><span class="tag tag-red">TECHNICAL CLIMB</span></div>
+            </div>
+            <div class="split-divider"></div>
+            <div class="split-half parents">
+              <div class="split-who parents">&#129494; Julian &amp; Lianne</div>
+              <div class="split-title" style="color:var(--aurora)">Glacier Experience Walk</div>
+              <div class="split-body"><strong>3 hours</strong> &mdash; Easy, informative, and flat walk on the ice tongue with a knowledgeable guide. See crevasses, moulins, and glacial formations close-up without the technical climbing element.</div>
+              <div class="card-tags" style="margin-top:10px"><span class="tag tag-aurora">3 HRS</span><span class="tag tag-lava">EASY ACCESS</span></div>
+            </div>
+          </div>
+          <div style="padding:14px 20px;border-top:1px solid var(--border);font-size:0.78rem;color:var(--slate)">
+            &#128336; Both groups meet at the base van at 11:00am &mdash; <a href="https://adventures.is/" target="_blank" rel="noopener">Arctic Adventures</a> &middot; S&oacute;lheimaj&ouml;kull glacier
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Afternoon</div>
+      <div class="t-body">
+        <div class="grid g2">
+          <div class="card">
+            <span class="card-icon">&#128167;</span>
+            <div class="card-title">Kvernufoss &mdash; Hidden Waterfall</div>
+            <div class="card-body">A short hike from the road to a stunning hidden waterfall that most visitors miss. You can walk behind this one too. Far less crowded than Sk&oacute;gafoss next door.</div>
+            <div class="card-tags"><span class="tag tag-aurora">HIDDEN GEM</span></div>
+          </div>
+          <div class="card">
+            <span class="card-icon">&#127754;</span>
+            <div class="card-title">Sk&oacute;gafoss</div>
+            <div class="card-body">One of Iceland&rsquo;s most powerful and photogenic waterfalls &mdash; a 60-metre curtain of water. Climb the 527 steps to the top for panoramic South Coast views.</div>
+            <div class="card-tags"><span class="tag tag-ice">60M WATERFALL</span><span class="tag tag-lava">CLIFF TOP VIEWS</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Stay</div>
+      <div class="t-body">
+        <div class="card">
+          <span class="card-icon">&#127968;</span>
+          <div class="card-title">Hotel V&iacute;k &iacute; M&yacute;rdal</div>
+          <div class="card-body">Check in at the charming village of V&iacute;k. Tomorrow&rsquo;s puffin cliffs and black sand beach are right on the doorstep.</div>
+          <div class="card-tags"><span class="tag tag-ice">V&Iacute;K</span><span class="tag tag-lava">MOVE ON FROM HELLA</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY 5 -->
+<section id="s-day5">
+  <div class="day-stripe"></div>
+  <div class="section-inner">
+    <span class="section-day reveal">Day 5 &middot; Friday 25 June</span>
+    <h2 class="section-title reveal">Kingdom of Puffins<br>&amp; Return to Reykjav&iacute;k</h2>
+    <p class="section-intro reveal">A short morning drive to the dramatic Dyrhólaey cliffs to watch puffins nesting, then the Reynisfjara black sand beach, before the long drive back to the capital.</p>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Morning<br>15 mins</div>
+      <div class="t-body">
+        <div class="card">
+          <span class="card-icon">&#128038;</span>
+          <div class="card-title">Dyrhólaey Cliffs &amp; Puffins</div>
+          <div class="card-body">Drive to the Dyrhólaey promontory and use the 4WD to reach the upper lighthouse. In June the Atlantic puffins are nesting on the clifftops &mdash; you can get remarkably close. The arched rock formation over the sea and views to Reynisfjara beach are stunning.</div>
+          <div class="card-tags"><span class="tag tag-aurora">PUFFIN NESTING SEASON</span><span class="tag tag-ice">4WD TO LIGHTHOUSE</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Mid-<br>morning</div>
+      <div class="t-body">
+        <div class="card">
+          <span class="card-icon">&#11035;</span>
+          <div class="card-title">Reynisfjara Black Sand Beach</div>
+          <div class="card-body">Walk the dramatic black volcanic sand beach with its towering basalt column formations. The waves here are powerful &mdash; never turn your back on the sea. One of Iceland&rsquo;s most striking and otherworldly landscapes.</div>
+          <div class="card-tags"><span class="tag tag-lava">BLACK VOLCANIC SAND</span><span class="tag tag-red">RESPECT THE WAVES</span><span class="tag tag-ice">BASALT COLUMNS</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Drive<br>~2h 30m</div>
+      <div class="t-body">
+        <p>Drive 190km west along the Ring Road back to Reykjav&iacute;k. The route is one of the most scenic in Iceland &mdash; don&rsquo;t rush it.</p>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Stay</div>
+      <div class="t-body">
+        <div class="card">
+          <span class="card-icon">&#127970;</span>
+          <div class="card-title"><a href="https://centerhotels.com/pingholt" target="_blank" rel="noopener">&thorn;ingholt by Center Hotels</a></div>
+          <div class="card-body">Boutique design hotel in central Reykjav&iacute;k. Walking distance from everything &mdash; restaurants, the harbour, Hallgr&iacute;mskirkja church, and the city&rsquo;s legendary bars.</div>
+          <div class="card-tags"><span class="tag tag-ice">CENTRAL REYKJAV&Iacute;K</span><span class="tag tag-lava">2 NIGHTS</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY 6 -->
+<section id="s-day6">
+  <div class="day-stripe"></div>
+  <div class="section-inner">
+    <span class="section-day reveal">Day 6 &middot; Saturday 26 June</span>
+    <h2 class="section-title reveal">Whale Watching &amp; Grand Finale</h2>
+    <p class="section-intro reveal">The final full day. A morning on the water searching for humpbacks and minke whales, followed by the celebratory tasting menu dinner of the trip.</p>
+
+    <div class="time-block reveal">
+      <div class="t-tag">Morning</div>
+      <div class="t-body">
+        <div class="card" style="border-left:3px solid var(--ice)">
+          <span class="card-icon">&#128011;</span>
+          <div class="card-title"><a href="https://elding.is/" target="_blank" rel="noopener">Whale Watching &mdash; Elding, Old Harbour</a></div>
+          <div class="card-body">Board a Classic Big Boat from Reykjav&iacute;k&rsquo;s Old Harbour. June is one of the best months for whale sightings &mdash; humpbacks and minke whales are regularly seen in the rich feeding waters of Fax&aacute;fl&oacute;i Bay. Knowledgeable marine biologist guides on board.</div>
+          <div class="card-tags"><span class="tag tag-ice">HUMPBACK &amp; MINKE</span><span class="tag tag-aurora">JUNE PEAK SEASON</span><span class="tag tag-lava">OLD HARBOUR</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag aurora">Afternoon<br>Free</div>
+      <div class="t-body">
+        <p>Explore Reykjav&iacute;k &mdash; the world&rsquo;s most northerly capital. Walk up to <strong>Hallgr&iacute;mskirkja</strong> for city views, browse the shops on <em>Laugavegur</em>, or simply relax at a caf&eacute;.</p>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag gold">Grand<br>Finale</div>
+      <div class="t-body">
+        <div class="card" style="border-left:3px solid var(--gold)">
+          <span class="card-icon">&#127869;</span>
+          <div class="card-title" style="color:var(--gold)"><a href="https://www.grillmarkadurinn.is/" target="_blank" rel="noopener" style="color:var(--gold);border-color:rgba(197,155,39,0.3)">Grillmarkadurinn &mdash; The Grillmarket</a></div>
+          <div class="card-body">Reykjav&iacute;k&rsquo;s most celebrated restaurant. The grand finale tasting menu features exceptional Icelandic produce &mdash; langoustines, lamb, Arctic char, and local cheeses &mdash; paired with Icelandic spirits. One of the finest dining experiences in the North Atlantic.</div>
+          <div class="card-tags"><span class="tag tag-gold">GRAND FINALE DINNER</span><span class="tag tag-ice">TASTING MENU</span><span class="tag tag-aurora">BOOK IN ADVANCE</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY 7 -->
+<section id="s-day7">
+  <div class="day-stripe"></div>
+  <div class="section-inner">
+    <span class="section-day reveal">Day 7 &middot; Sunday 27 June</span>
+    <h2 class="section-title aurora reveal">Departure</h2>
+    <p class="section-intro reveal">One last Icelandic morning before heading home. A gentle end to the adventure.</p>
+
+    <div class="time-block reveal">
+      <div class="t-tag aurora">Morning</div>
+      <div class="t-body">
+        <div class="card">
+          <span class="card-icon">&#127858;</span>
+          <div class="card-title">Bra&eth; &amp; Co</div>
+          <div class="card-body">Reykjav&iacute;k&rsquo;s beloved bakery. Freshly baked pastries and exceptional coffee &mdash; the perfect final Icelandic breakfast. Expect a queue; it&rsquo;s worth it.</div>
+          <div class="card-tags"><span class="tag tag-aurora">REYKJAV&Iacute;K INSTITUTION</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">En Route</div>
+      <div class="t-body">
+        <div class="card">
+          <span class="card-icon">&#128165;</span>
+          <div class="card-title">Reykjanes Volcano &mdash; Final Stop</div>
+          <div class="card-body">Drive past the active Reykjanes volcanic fields en route to the airport. The landscape of steaming fissures and recent lava flows is a dramatic final reminder of Iceland&rsquo;s raw geological power.</div>
+          <div class="card-tags"><span class="tag tag-red">ACTIVE VOLCANIC AREA</span><span class="tag tag-lava">EN ROUTE TO KEF</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-block reveal">
+      <div class="t-tag">45 mins<br>KEF</div>
+      <div class="t-body">
+        <p>Drop off the SUV at Keflavík Airport and fly home. <em>Iceland, you were extraordinary.</em></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COSTS -->
+<section id="s-costs" style="color:rgba(200,230,250,0.9)">
+  <div class="day-stripe"></div>
+  <div class="section-inner">
+    <span class="section-day reveal" style="color:rgba(74,173,202,0.7)">Trip Costs</span>
+    <h2 class="section-title reveal" style="color:var(--ice2)">Estimated Budget</h2>
+    <p class="section-intro reveal" style="color:rgba(168,210,234,0.7);border-left-color:rgba(74,173,202,0.4)">Estimated costs for the group of four, based on a capable 4x4 and excellent 4-star accommodation throughout.</p>
+    <div class="reveal" style="overflow-x:auto">
+      <table class="costs-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>&#128994; Estimated Cost (Group of 4)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Vehicle (7 days)</td><td>&#163;950</td></tr>
+          <tr><td>Hotels (6 nights)</td><td>&#163;2,700</td></tr>
+          <tr><td>Activities</td><td>&#163;1,450</td></tr>
+          <tr><td>Dining</td><td>&#163;1,500</td></tr>
+          <tr><td>TOTAL ESTIMATED</td><td>&#163;6,600</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip-box reveal" style="margin-top:24px;background:rgba(42,127,168,0.1);border-left-color:var(--ice2)">
+      <div class="tip-label" style="color:var(--ice2)">Booking Directory</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <a href="https://landhotel.is/" target="_blank" rel="noopener" class="book-link">Landh&oacute;tel, Hella</a>
+        
+        <a href="https://southadventure.is/" target="_blank" rel="noopener" class="book-link">Snowmobiling &mdash; South Adventure</a>
+        <a href="https://adventures.is/" target="_blank" rel="noopener" class="book-link">Glacier Hikes &mdash; Arctic Adventures</a>
+        <a href="https://elding.is/" target="_blank" rel="noopener" class="book-link">Whale Watching &mdash; Elding</a>
+        <a href="https://www.grillmarkadurinn.is/" target="_blank" rel="noopener" class="book-link">Grillmarkadurinn Restaurant</a>
+        <a href="https://www.bluelagoon.com/blue-lagoon-iceland/blue-lagoon" target="_blank" rel="noopener" class="book-link">Blue Lagoon</a>
+        <a href="https://hotelvik.is/" target="_blank" rel="noopener" class="book-link">Hotel V&iacute;k &iacute; M&yacute;rdal</a>
+        <a href="https://centerhotels.com/pingholt" target="_blank" rel="noopener" class="book-link">&thorn;ingholt Hotel, Reykjav&iacute;k</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div style="color:rgba(74,173,202,0.3);letter-spacing:0.5em;margin-bottom:16px">&#10022; &nbsp; &#10022; &nbsp; &#10022;</div>
+  <span class="hl">Iceland</span> &nbsp;&middot;&nbsp; June 2027 &nbsp;&middot;&nbsp; <span class="gold">Jack&rsquo;s 30th Birthday Adventure</span><br>
+  <div style="margin-top:8px;font-size:0.6rem;opacity:0.4">Jack &middot; Julian &middot; Lianne &middot; Daisy</div>
+</footer>
+
+<script>
+window.addEventListener('load', function() {
+  setTimeout(function() { document.getElementById('loader').classList.add('done'); }, 2000);
+});
+
+// HERO CANVAS — aurora + snow particles
+var hCanvas = document.getElementById('hero-canvas');
+var hCtx = hCanvas.getContext('2d');
+var heroW = 0, heroH = 0;
+function resizeHero() { heroW = hCanvas.width = hCanvas.offsetWidth; heroH = hCanvas.height = hCanvas.offsetHeight; }
+resizeHero();
+window.addEventListener('resize', resizeHero);
+
+var stars = [];
+for (var i = 0; i < 180; i++) {
+  stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.5+0.3,a:Math.random()});
+}
+
+var snowflakes = [];
+for (var i = 0; i < 30; i++) {
+  snowflakes.push({x:Math.random(),y:Math.random(),spd:0.1+Math.random()*0.2,sz:1+Math.random()*3,wb:Math.random()*6.28,ws:0.005+Math.random()*0.01});
+}
+
+var auroraT = 0;
+
+function drawHero() {
+  if (!hCtx || !heroW) { requestAnimationFrame(drawHero); return; }
+  hCtx.clearRect(0, 0, heroW, heroH);
+  auroraT += 0.005;
+
+  // Night sky gradient
+  var sky = hCtx.createLinearGradient(0, 0, 0, heroH);
+  sky.addColorStop(0, '#030810');
+  sky.addColorStop(0.5, '#060D1A');
+  sky.addColorStop(1, '#0A1520');
+  hCtx.fillStyle = sky;
+  hCtx.fillRect(0, 0, heroW, heroH);
+
+  // Mountain silhouette at bottom
+  hCtx.fillStyle = 'rgba(5,10,20,0.95)';
+  hCtx.beginPath();
+  hCtx.moveTo(0, heroH);
+  hCtx.lineTo(0, heroH * 0.72);
+  hCtx.bezierCurveTo(heroW*0.1, heroH*0.58, heroW*0.2, heroH*0.62, heroW*0.28, heroH*0.68);
+  hCtx.bezierCurveTo(heroW*0.34, heroH*0.6, heroW*0.4, heroH*0.52, heroW*0.5, heroH*0.55);
+  hCtx.bezierCurveTo(heroW*0.58, heroH*0.48, heroW*0.65, heroH*0.58, heroW*0.72, heroH*0.65);
+  hCtx.bezierCurveTo(heroW*0.82, heroH*0.56, heroW*0.9, heroH*0.68, heroW, heroH*0.72);
+  hCtx.lineTo(heroW, heroH);
+  hCtx.closePath();
+  hCtx.fill();
+
+  // Aurora borealis bands
+  var auroraColors = [
+    ['rgba(0,200,120,', 'rgba(0,150,200,'],
+    ['rgba(100,50,200,', 'rgba(0,180,150,'],
+  ];
+  for (var a = 0; a < 2; a++) {
+    var offset = a * 0.4;
+    var y1 = heroH * (0.22 + Math.sin(auroraT + offset) * 0.06);
+    hCtx.save();
+    hCtx.globalAlpha = 0.18 + Math.sin(auroraT * 0.7 + offset) * 0.06;
+    var grad = hCtx.createLinearGradient(0, y1 - 60, 0, y1 + 60);
+    grad.addColorStop(0, auroraColors[a][0] + '0)');
+    grad.addColorStop(0.5, auroraColors[a][0] + '1)');
+    grad.addColorStop(1, auroraColors[a][1] + '0)');
+    hCtx.fillStyle = grad;
+    hCtx.beginPath();
+    hCtx.moveTo(0, y1 + 60);
+    for (var x = 0; x <= heroW; x += 40) {
+      var wave = Math.sin(x * 0.008 + auroraT + offset) * 30;
+      hCtx.lineTo(x, y1 + wave);
+    }
+    hCtx.lineTo(heroW, y1 + 60);
+    hCtx.closePath();
+    hCtx.fill();
+    hCtx.restore();
+  }
+
+  // Stars
+  stars.forEach(function(s) {
+    s.a += 0.002;
+    var alpha = 0.4 + Math.sin(s.a) * 0.35;
+    hCtx.beginPath();
+    hCtx.arc(s.x * heroW, s.y * heroH * 0.75, s.r, 0, Math.PI * 2);
+    hCtx.fillStyle = 'rgba(200,220,255,' + alpha + ')';
+    hCtx.fill();
+  });
+
+  // Snowflakes
+  snowflakes.forEach(function(s) {
+    s.y += s.spd / 100;
+    s.wb += s.ws;
+    if (s.y > 1) s.y = 0;
+    var sx = (s.x + Math.sin(s.wb) * 0.02) * heroW;
+    var sy = s.y * heroH;
+    hCtx.beginPath();
+    hCtx.arc(sx, sy, s.sz, 0, Math.PI * 2);
+    hCtx.fillStyle = 'rgba(200,230,255,0.55)';
+    hCtx.fill();
+  });
+
+  requestAnimationFrame(drawHero);
+}
+drawHero();
+
+// SCROLL REVEAL
+var revEls = document.querySelectorAll('.reveal');
+var io = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e, i) {
+    if (e.isIntersecting) { setTimeout(function() { e.target.classList.add('v'); }, i * 55); }
+  });
+}, {threshold: 0.1});
+revEls.forEach(function(el) { io.observe(el); });
+
+// NAV + TIMELINE
+var secIds = ['s-hero','s-flight','s-day1','s-day2','s-day3','s-day4','s-day5','s-day6','s-day7','s-costs'];
+var pips = document.querySelectorAll('.nav-pip');
+var tlDots = document.querySelectorAll('.tl-dot');
+var tlFill = document.getElementById('tl-fill');
+
+function updateNav() {
+  var cur = 0;
+  secIds.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el && window.scrollY >= el.offsetTop - 280) cur = i;
+  });
+  var pm = [0,0,1,2,3,4,5,6,7,7];
+  pips.forEach(function(p, i) { p.classList.toggle('active', pm[cur] === i); });
+  tlDots.forEach(function(d, i) { d.classList.toggle('lit', i <= cur); });
+  var tot = document.body.scrollHeight - window.innerHeight;
+  if (tlFill && tot > 0) tlFill.style.height = (window.scrollY / tot * 100) + '%';
+}
+window.addEventListener('scroll', updateNav, {passive:true});
+updateNav();
+</script>
+</body>
+</html>
